@@ -9,7 +9,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 MODEL_NAME = "gemini-1.5-flash"
 
 st.set_page_config(
-    page_title="CentiCage",
+    page_title="ChatGPT Clone",
     page_icon="💬",
     layout="centered",
     initial_sidebar_state="collapsed",
@@ -46,9 +46,9 @@ def navbar(active_page: str):
     st.markdown(
         f"""
 <style>
-/* Navbar wrapper */
+/* Navbar wrapper - solid black */
 .navbar {{
-   position: fixed;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
@@ -56,10 +56,8 @@ def navbar(active_page: str):
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(17, 17, 17, 0.6); /* semi-transparent */
-  backdrop-filter: blur(12px);        /* blur effect */
-  -webkit-backdrop-filter: blur(12px); /* safari support */
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  background: #111; /* solid black */
+  border-bottom: 1px solid #333;
   padding: 12px 20px;
 }}
 
@@ -100,7 +98,7 @@ def navbar(active_page: str):
   display:none;
   flex-direction:column;
   gap:10px;
-  background:#1a1a1a;
+  background:#111;
   padding:10px 20px;
 }}
 @media(max-width:768px){{
@@ -123,7 +121,7 @@ def navbar(active_page: str):
 </style>
 
 <div class="navbar">
-  <div class="navbar-logo">💬Centi Sage</div>
+  <div class="navbar-logo">💬 ChatGPT Clone</div>
   <div class="navbar-links">
     <a class="{cls('home')}" href="?page=home">Home</a>
     <a class="{cls('about')}" href="?page=about">About</a>
@@ -157,7 +155,7 @@ elif page == "about":
     st.write("Built with **Streamlit + Gemini API** and custom CSS for mobile-friendly chat.")
 
 elif page == "chat":
-    st.markdown("<h1 class='app-title'>💬 Centi Sage</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 class='app-title'>💬 Chat</h1>", unsafe_allow_html=True)
 
     if "messages" not in st.session_state:
         st.session_state.messages = [
