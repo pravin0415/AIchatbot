@@ -9,7 +9,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 MODEL_NAME = "gemini-1.5-flash"
 
 st.set_page_config(
-    page_title="ChatGPT Clone",
+    page_title="Centi Sage",
     page_icon="💬",
     layout="centered",
     initial_sidebar_state="collapsed",
@@ -116,7 +116,7 @@ def navbar(active_page: str):
 
     st.markdown(f"""
     <div class="navbar">
-      <div class="navbar-logo">💬 ChatGPT Clone</div>
+      <div class="navbar-logo">💬 Centi Sage</div>
       <div class="navbar-links">
         <a class="{cls('home')}" href="?page=home">Home</a>
         <a class="{cls('about')}" href="?page=about">About</a>
@@ -194,3 +194,4 @@ elif page == "login":
                 st.success(f"🎉 Account created for {u2}!")
             else:
                 st.error("⚠️ Enter username and password.")
+
