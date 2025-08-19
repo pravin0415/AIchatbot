@@ -15,12 +15,83 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# Load custom CSS
-if os.path.exists("style.css"):
-    with open("style.css") as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+# ---------- Inject custom CSS ----------
+st.markdown("""
+    <style>
+    /* Hide default Streamlit header (where Share/GitHub appear) */
+    header[data-testid="stHeader"] {
+        display: none;
+    }
+    /* Push navbar on top */
+    .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #111;
+        border-bottom: 1px solid #333;
+        padding: 12px 20px;
+    }
+    .navbar-logo {
+        color:#f5f5f5;
+        font-weight:600;
+        font-size:18px;
+    }
+    .navbar-links {
+        display:flex;
+        gap:18px;
+    }
+    .navbar-links a {
+        text-decoration:none;
+        color:#e5e5e5;
+        font-weight:500;
+        padding:8px 12px;
+        border-radius:6px;
+        transition:0.25s;
+    }
+    .navbar-links a:hover { background:#2563eb;color:#fff; }
+    .navbar-links a.active { background:#1e3a8a;color:#fff; }
 
-# Gemini init
+    /* Mobile toggle */
+    .navbar-toggle {
+        display:none;
+        font-size:22px;
+        color:#f5f5f5;
+        cursor:pointer;
+    }
+    #nav-toggle { display:none; }
+    .navbar-menu {
+        display:none;
+        flex-direction:column;
+        gap:10px;
+        background:#111;
+        padding:10px 20px;
+    }
+    @media(max-width:768px){
+        .navbar-links{display:none;}
+        .navbar-toggle{display:block;}
+        #nav-toggle:checked ~ .navbar-menu{display:flex;}
+        .navbar-menu a{
+            padding:10px;
+            color:#e5e5e5;
+            text-decoration:none;
+            border-radius:6px;
+        }
+        .navbar-menu a:hover{background:#2563eb;color:#fff;}
+    }
+
+    /* Push all page content below navbar */
+    .block-container {
+        padding-top: 80px !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# ---------- Gemini init ----------
 model = None
 if GEMINI_API_KEY:
     try:
@@ -43,105 +114,25 @@ page = (page or "chat").lower()
 def navbar(active_page: str):
     def cls(name): return "active" if active_page == name else ""
 
-    st.markdown(
-        f"""
-<style>
-/* Navbar wrapper - solid black */
-.navbar {{
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 999;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #111; /* solid black */
-  border-bottom: 1px solid #333;
-  padding: 12px 20px;
-}}
-
-/* Logo */
-.navbar-logo {{
-  color:#f5f5f5;
-  font-weight:600;
-  font-size:18px;
-}}
-
-/* Desktop links */
-.navbar-links {{
-  display:flex;
-  gap:18px;
-}}
-.navbar-links a {{
-  text-decoration:none;
-  color:#e5e5e5;
-  font-weight:500;
-  padding:8px 12px;
-  border-radius:6px;
-  transition:0.25s;
-}}
-.navbar-links a:hover {{ background:#2563eb;color:#fff; }}
-.navbar-links a.active {{ background:#1e3a8a;color:#fff; }}
-
-/* Mobile toggle */
-.navbar-toggle {{
-  display:none;
-  font-size:22px;
-  color:#f5f5f5;
-  cursor:pointer;
-}}
-#nav-toggle {{ display:none; }}
-
-/* Mobile menu */
-.navbar-menu {{
-  display:none;
-  flex-direction:column;
-  gap:10px;
-  background:#111;
-  padding:10px 20px;
-}}
-@media(max-width:768px){{
-  .navbar-links{{display:none;}}
-  .navbar-toggle{{display:block;}}
-  #nav-toggle:checked ~ .navbar-menu{{display:flex;}}
-  .navbar-menu a{{
-    padding:10px;
-    color:#e5e5e5;
-    text-decoration:none;
-    border-radius:6px;
-  }}
-  .navbar-menu a:hover{{background:#2563eb;color:#fff;}}
-}}
-
-/* Push page content below navbar */
-.main-content {{
-  margin-top:70px;
-}}
-</style>
-
-<div class="navbar">
-  <div class="navbar-logo">💬 ChatGPT Clone</div>
-  <div class="navbar-links">
-    <a class="{cls('home')}" href="?page=home">Home</a>
-    <a class="{cls('about')}" href="?page=about">About</a>
-    <a class="{cls('chat')}" href="?page=chat">Chat</a>
-    <a class="{cls('login')}" href="?page=login">Login/Register</a>
-  </div>
-  <label for="nav-toggle" class="navbar-toggle">☰</label>
-</div>
-<input type="checkbox" id="nav-toggle" />
-<div class="navbar-menu">
-  <a class="{cls('home')}" href="?page=home">Home</a>
-  <a class="{cls('about')}" href="?page=about">About</a>
-  <a class="{cls('chat')}" href="?page=chat">Chat</a>
-  <a class="{cls('login')}" href="?page=login">Login/Register</a>
-</div>
-
-<div class="main-content">
-        """,
-        unsafe_allow_html=True,
-    )
+    st.markdown(f"""
+    <div class="navbar">
+      <div class="navbar-logo">💬 ChatGPT Clone</div>
+      <div class="navbar-links">
+        <a class="{cls('home')}" href="?page=home">Home</a>
+        <a class="{cls('about')}" href="?page=about">About</a>
+        <a class="{cls('chat')}" href="?page=chat">Chat</a>
+        <a class="{cls('login')}" href="?page=login">Login/Register</a>
+      </div>
+      <label for="nav-toggle" class="navbar-toggle">☰</label>
+    </div>
+    <input type="checkbox" id="nav-toggle" />
+    <div class="navbar-menu">
+      <a class="{cls('home')}" href="?page=home">Home</a>
+      <a class="{cls('about')}" href="?page=about">About</a>
+      <a class="{cls('chat')}" href="?page=chat">Chat</a>
+      <a class="{cls('login')}" href="?page=login">Login/Register</a>
+    </div>
+    """, unsafe_allow_html=True)
 
 navbar(page)
 
