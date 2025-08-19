@@ -129,19 +129,19 @@ def append_message(role, content):
 
 
 def generate_reply(prompt_text):
-    # If Gemini model is configured, call it. Otherwise return a canned reply to keep UI functional.
     if model:
         try:
             resp = model.generate_content(prompt_text)
-            # The generative API returns complex objects — attempt to get `.text` first
             if resp and getattr(resp, "text", None):
                 return resp.text
-            # As a fallback, try JSON representation
             return str(resp)
         except Exception as e:
             return f"⚠️ Error from API: {e}"
     else:
         return "(Demo) Gemini API key not set. This is a mock reply to show chat flow."
+
+# Safe escape for HTML
+from html import escape
 
 # --------------------
 # Pages: Home / About / Chat / History
@@ -173,7 +173,6 @@ elif page == "history":
         st.session_state.messages = []
         st.experimental_rerun()
 
-    # show messages in a dataframe-like view
     import pandas as pd
 
     if st.session_state.messages:
@@ -186,11 +185,7 @@ elif page == "history":
 else:  # chat page
     st.markdown("<div class='chat-panel'>", unsafe_allow_html=True)
 
-    # Left column: quick controls
-    with st.container():
-        cols = st.columns([1, 3])
-
-    left, right = cols
+    left, right = st.columns([1, 3])
 
     with left:
         st.markdown("<div class='left-col'>", unsafe_allow_html=True)
@@ -209,10 +204,9 @@ else:  # chat page
 
         st.markdown("---")
         st.markdown("**Upload (image / audio)**")
-        uploaded = st.file_uploader("Upload an image or audio to send with your message", type=["png", "jpg", "jpeg", "mp3", "wav"], accept_multiple_files=False)
+        uploaded = st.file_uploader("Upload an image or audio", type=["png", "jpg", "jpeg", "mp3", "wav"], accept_multiple_files=False)
         if uploaded:
             st.markdown(f"Uploaded: **{uploaded.name}**")
-            # store uploaded file reference in session for next message
             st.session_state.upload = uploaded
 
         st.markdown("</div>", unsafe_allow_html=True)
@@ -220,7 +214,6 @@ else:  # chat page
     with right:
         st.markdown("<div class='right-col'>", unsafe_allow_html=True)
 
-        # Messages container (will be updated each run)
         messages_html = ["<div class='messages'>"]
         for m in st.session_state.messages:
             role = m.get("role", "assistant")
@@ -228,51 +221,41 @@ else:  # chat page
             ts_display = datetime.fromisoformat(ts).strftime("%Y-%m-%d %H:%M:%S") if ts else ""
             if role == "user":
                 messages_html.append(
-                    f"<div class='message-row user'><div class='bubble user'><div>{st.experimental_escape(m['content'])}</div><div class='meta'>{ts_display}</div></div></div>"
+                    f"<div class='message-row user'><div class='bubble user'><div>{escape(m['content'])}</div><div class='meta'>{ts_display}</div></div></div>"
                 )
             else:
                 messages_html.append(
-                    f"<div class='message-row ai'><div class='avatar ai'>AI</div><div class='bubble ai'><div>{st.experimental_escape(m['content'])}</div><div class='meta'>{ts_display}</div></div></div>"
+                    f"<div class='message-row ai'><div class='avatar ai'>AI</div><div class='bubble ai'><div>{escape(m['content'])}</div><div class='meta'>{ts_display}</div></div></div>"
                 )
         messages_html.append("</div>")
 
         st.markdown("".join(messages_html), unsafe_allow_html=True)
-
-        # Call the scroll helper to keep view at bottom after a new message
         st.markdown("<script>window.scrollToBottom()</script>", unsafe_allow_html=True)
 
-        # Input area (text + optional file + send button)
         st.markdown("<div class='input-area'>", unsafe_allow_html=True)
         query = st.text_area("", placeholder="Type your message... (Shift+Enter = newline)", key="input_box", height=80)
         col1, col2 = st.columns([1, 6])
         with col1:
             send = st.button("Send")
         with col2:
-            st.markdown("<div style='text-align:right'><small>Tip: You can upload an image/audio on the left. Uploaded file will be referenced in the next message.</small></div>", unsafe_allow_html=True)
+            st.markdown("<div style='text-align:right'><small>Tip: Upload a file on the left before sending to attach it.</small></div>", unsafe_allow_html=True)
 
         st.markdown("</div>", unsafe_allow_html=True)
 
-        # When user sends a message
         if send and query.strip():
             content_to_send = query.strip()
 
-            # If user uploaded a file, attach a simple note (you can expand this to actually send file bytes to the model)
             if st.session_state.get("upload"):
                 up = st.session_state.pop("upload")
                 content_to_send += f"\n\n[Attached file: {up.name}]"
 
             append_message("user", content_to_send)
-
-            # Clear input box
             st.session_state["input_box"] = ""
-
-            # Generate reply (sync)
             reply = generate_reply(content_to_send)
             append_message("assistant", reply)
-
-            # Rerun so UI reflects new messages and scrolls
             st.experimental_rerun()
 
         st.markdown("</div>", unsafe_allow_html=True)
 
 # End of file
+
