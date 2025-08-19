@@ -3,6 +3,19 @@ body, .stApp {
     background: #0d0d0d !important;
     color: #e5e5e5 !important;
 }
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  background-color: #111; /* or your color */
+  padding: 10px 20px;
+}
+
+body {
+  margin-top: 60px; /* push content below navbar */
+}
+
 
 /* Chat bubbles */
 .user-bubble {
@@ -54,3 +67,4 @@ body, .stApp {
         font-size: 16px;
     }
 }
+
